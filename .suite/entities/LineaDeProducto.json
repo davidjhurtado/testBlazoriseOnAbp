@@ -1,0 +1,37 @@
+{
+  "Id": "0f22f56a-0cdc-497a-8052-6a904c597c19",
+  "Name": "LineaDeProducto",
+  "OriginalName": "LineaDeProducto",
+  "NamePlural": "LineaDeProductos",
+  "DatabaseTableName": "LineaDeProductos",
+  "Namespace": "LineaDeProductos",
+  "BaseClass": "AuditedAggregateRoot",
+  "PrimaryKeyType": "Guid",
+  "IsMultiTenant": false,
+  "ShouldCreateUserInterface": true,
+  "ShouldCreateBackend": true,
+  "ShouldAddMigration": true,
+  "ShouldUpdateDatabase": true,
+  "CreateTests": true,
+  "Properties": [
+    {
+      "Id": "121051ca-a167-46cb-857a-bfc155c805cd",
+      "Name": "Descripcion",
+      "Type": "string",
+      "EnumType": "",
+      "EnumNamespace": "",
+      "EnumAngularImport": "shared/enums",
+      "IsNullable": false,
+      "IsRequired": true,
+      "MinLength": 1,
+      "MaxLength": 100,
+      "SortOrder": 1,
+      "SortType": 1,
+      "Regex": "",
+      "EmailValidation": false,
+      "EnumValues": null
+    }
+  ],
+  "NavigationProperties": [],
+  "PhysicalFileName": "LineaDeProducto.json"
+}

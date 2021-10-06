@@ -1,0 +1,176 @@
+@page "/linea-de-productos"
+@attribute [Authorize(ticketsTestPermissions.LineaDeProductos.Default)]
+@using ticketsTest.LineaDeProductos
+@using ticketsTest.Localization
+@using ticketsTest.Shared
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Blazorise.Components
+@using Volo.Abp.BlazoriseUI.Components
+@using Volo.Abp.ObjectMapping
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using ticketsTest.Permissions
+@inject ILineaDeProductosAppService LineaDeProductosAppService
+@inject IStringLocalizer<ticketsTestResource> L
+@inject IAuthorizationService AuthorizationService
+@inject IUiMessageService UiMessageService
+@inject IObjectMapper ObjectMapper
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["LineaDeProductos"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* SEARCH ************************* *@
+<Card>
+    <CardBody>
+        <Form id="LineaDeProductoSearchForm" class="mb-3">
+            <Addons>
+                <Addon AddonType="AddonType.Body">
+                    <TextEdit @bind-Text="@Filter.FilterText"
+                              Autofocus="true"
+                              Placeholder="@L["Search"]">
+                    </TextEdit>
+                </Addon>
+                <Addon AddonType="AddonType.End">
+                    <SubmitButton Form="LineaDeProductoSearchForm" Clicked="GetLineaDeProductosAsync">
+                        <Icon Name="IconName.Search" Class="mr-1"></Icon>@L["Search"]
+                    </SubmitButton>
+                </Addon>
+            </Addons>
+        </Form>
+    </CardBody>
+</Card>
+
+@* ************************* DATA GRID ************************* *@
+<Card>
+    <CardBody>
+        <DataGrid TItem="LineaDeProductoDto"
+                  Data="LineaDeProductoList"
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  Responsive="true"
+                  PageSize="PageSize">
+            <DataGridColumns>
+                <DataGridEntityActionsColumn TItem="LineaDeProductoDto" @ref="@EntityActionsColumn">
+                    <DisplayTemplate>
+                        <EntityActions TItem="LineaDeProductoDto" EntityActionsColumn="@EntityActionsColumn">
+                            <EntityAction TItem="LineaDeProductoDto"
+                                          Visible="@CanEditLineaDeProducto"
+                                          Clicked="() => OpenEditLineaDeProductoModal(context)"
+                                          Text="@L["Edit"]"></EntityAction>
+                            <EntityAction TItem="LineaDeProductoDto"
+                                          Visible="@CanDeleteLineaDeProducto"
+                                          Clicked="() => DeleteLineaDeProductoAsync(context)"
+                                          ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
+                                          Text="@L["Delete"]"></EntityAction>
+                        </EntityActions>
+                    </DisplayTemplate>
+                </DataGridEntityActionsColumn>
+               
+              <DataGridColumn TItem="LineaDeProductoDto"
+                      Field="Descripcion"
+                      Caption="@L["Descripcion"]">
+              </DataGridColumn>
+
+            </DataGridColumns>
+        </DataGrid>
+    </CardBody>
+</Card>
+
+@* ************************* CREATE MODAL ************************* *@
+<Modal @ref="CreateLineaDeProductoModal">
+    <ModalContent Centered="true">
+        <Form id="CreateLineaDeProductoForm">
+            <ModalHeader>
+                <ModalTitle>@L["NewLineaDeProducto"]</ModalTitle>
+                <CloseButton Clicked="CloseCreateLineaDeProductoModal" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@NewLineaDeProductoValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@NewLineaDeProducto"
+                            ValidateOnLoad="false">
+                    
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["Descripcion"] *</FieldLabel>
+                            <TextEdit @bind-Text="@NewLineaDeProducto.Descripcion" MaxLength="LineaDeProductoConsts.DescripcionMaxLength">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+                    <DataGrid TItem="ContactPhoneCreateDto"
+                        Data="SomeData"
+                        Editable="true"
+                        UseInternalEditing="true"
+                        EditMode="DataGridEditMode.Popup"
+                        PageSize="3"
+                        Striped="true"
+                        Bordered="true"
+                        Hoverable="true"
+                        NewItemDefaultSetter="@OnNewItemDefaultSetterPhone"
+                        @bind-SelectedRow="@SelectedItemPhone"
+                        ShowPager="true">
+                        <DataGridCommandColumn TItem="ContactPhoneCreateDto"></DataGridCommandColumn>
+                        <DataGridColumn TItem="ContactPhoneCreateDto" Field="@nameof(ContactPhoneCreateDto.Type)"
+                                        Caption="Type" Editable="true" />
+                        <DataGridColumn TItem="ContactPhoneCreateDto" Field="@nameof(ContactPhoneCreateDto.Phone)"
+                                        Caption="Phone" Editable="true" />
+                    </DataGrid>
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseCreateLineaDeProductoModal">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="CreateLineaDeProductoForm" Clicked="CreateLineaDeProductoAsync" />
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
+
+@* ************************* EDIT MODAL ************************* *@
+<Modal @ref="EditLineaDeProductoModal">
+    <ModalContent Centered="true">
+        <Form id="EditLineaDeProductoForm">
+            <ModalHeader>
+                <ModalTitle>@L["Update"]</ModalTitle>
+                <CloseButton Clicked="CloseEditLineaDeProductoModal" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@EditingLineaDeProductoValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@EditingLineaDeProducto"
+                            ValidateOnLoad="false">
+                    
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["Descripcion"] *</FieldLabel>
+                            <TextEdit @bind-Text="@EditingLineaDeProducto.Descripcion" MaxLength="LineaDeProductoConsts.DescripcionMaxLength">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseEditLineaDeProductoModal">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="CreateLineaDeProductoForm" Clicked="UpdateLineaDeProductoAsync" />
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
